@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>人工智能学院智慧党建</title>
+  <!-- 引入Chart.js和ECharts（多个备用CDN） -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- 主CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <!-- 备用CDN1 -->
+  <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+  <!-- 备用CDN2 -->
+  <script src="https://unpkg.com/echarts@5.4.3/dist/echarts.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: "Microsoft YaHei", sans-serif;
+      color: #333;
+      padding: 20px;
+      overflow-x: hidden;
+      background-color: #ffffff;
+      min-height: 100vh;
+    }
+
+    /* 头部 */
+    .header {
+      background: #c00;
+      color: white;
+      padding: 30px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(192, 0, 0, 0.2);
+    }
+    
+    .header::after {
+      content: "";
+      position: absolute;
+      right: 30px;
+      top: 30px;
+      width: 120px;
+      height: 120px;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50,5 L60,40 L95,40 L65,60 L75,95 L50,75 L25,95 L35,60 L5,40 L40,40 Z" fill="rgba(255,255,255,0.2)"/></svg>');
+      background-size: cover;
+      opacity: 0.8;
+    }
+    
+    .header h1 {
+      font-size: 32px;
+      margin-bottom: 12px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      letter-spacing: 1px;
+    }
+    
+    .header p {
+      font-size: 16px;
+      opacity: 0.95;
+      line-height: 1.6;
+      max-width: 90%;
+    }
+
+    /* 强调文字 */
+    .highlight {
+      color: #c00;
+      font-weight: bold;
+    }
+
+    /* 指标卡片 */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+    
+    .metric-card {
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      border: 1px solid #e0e0e0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .metric-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 25px rgba(192, 0, 0, 0.15);
+      border-color: #c00;
+    }
+    
+    .metric-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: #c00;
+    }
+    
+    .metric-icon {
+      font-size: 36px;
+      margin-bottom: 15px;
+      color: #c00;
+    }
+    
+    .metric-value {
+      font-size: 36px;
+      font-weight: bold;
+      color: #c00;
+      margin-bottom: 8px;
+    }
+    
+    .metric-label {
+      font-size: 15px;
+      color: #666;
+      font-weight: 500;
+    }
+
+    /* 主体内容 */
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+    
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e0e0e0;
+      transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(192, 0, 0, 0.12);
+      border-color: #c00;
+    }
+    
+    .card-title {
+      color: #c00;
+      font-size: 18px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #f0f0f0;
+      font-weight: bold;
+      text-align: center;
+      position: relative;
+    }
+    
+    .card-title::after {
+      content: "";
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: #c00;
+      border-radius: 3px;
+    }
+
+    /* 图表容器 */
+    .chart-container {
+      width: 100%;
+      height: 280px;
+      position: relative;
+    }
+    
+    /* ECharts加载失败提示 */
+    .chart-error {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      color: #666;
+      text-align: center;
+      padding: 20px;
+    }
+    
+    .chart-error i {
+      font-size: 48px;
+      color: #ff6b6b;
+      margin-bottom: 15px;
+    }
+    
+    .chart-error p {
+      margin: 5px 0;
+    }
+    
+    .chart-error a {
+      color: #c00;
+      text-decoration: underline;
+      margin-top: 10px;
+    }
+    
+    .legend {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      background: #f8f9fa;
+      padding: 8px 12px;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .legend-color {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      margin-right: 8px;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* 发展流程 */
+    .progress-line {
+      display: flex;
+      justify-content: space-between;
+      margin: 30px 0;
+      position: relative;
+    }
+    
+    .progress-line::before {
+      content: "";
+      position: absolute;
+      top: 12px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #c00;
+      z-index: 1;
+    }
+    
+    .step {
+      text-align: center;
+      flex: 1;
+      padding: 15px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .step-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #c00;
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      margin-bottom: 12px;
+      font-weight: bold;
+      box-shadow: 0 4px 8px rgba(192, 0, 0, 0.3);
+      border: 2px solid white;
+    }
+    
+    .step-label {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    
+    .step-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #c00;
+    }
+
+    /* 活动类型分布 */
+    .activity-distribution {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 10px;
+    }
+    
+    .activity-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid #c00;
+      transition: all 0.3s ease;
+    }
+    
+    .activity-item:hover {
+      background: #f0f0f0;
+      transform: translateX(5px);
+    }
+    
+    .activity-name {
+      font-weight: 500;
+      color: #333;
+    }
+    
+    .activity-count {
+      font-weight: bold;
+      color: #c00;
+      font-size: 18px;
+    }
+
+    /* 近期活动表格 */
+    .table-container {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    th {
+      background: #f8f9fa;
+      font-size: 15px;
+      color: #c00;
+      font-weight: bold;
+      border-right: 1px solid #e0e0e0;
+    }
+    
+    th:last-child {
+      border-right: none;
+    }
+    
+    td {
+      font-size: 14px;
+      color: #555;
+    }
+    
+    tr:hover {
+      background: #f8f9fa;
+    }
+    
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* =============== 第一部分：重要活动（全屏视差） =============== */
+    .parallax-container {
+      width: 100vw;
+      margin: 40px calc(-20px) 40px;
+      overflow-x: hidden;
+      border-radius: 0;
+      position: relative;
+    }
+    
+    .parallax-section {
+      height: 100vh;
+      position: relative;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: cover;
+      background-attachment: fixed;
+    }
+    
+    .parallax-section::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+    }
+    
+    .parallax-text {
+      padding: 40px;
+      text-align: center;
+      max-width: 800px;
+      z-index: 2;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+    
+    .parallax-text h2 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      color: #c00;
+      text-shadow: 3px 3px 6px rgba(255, 255, 255, 0.8);
+      text-transform: uppercase;
+    }
+    
+    .parallax-text p {
+      font-size: 1.4rem;
+      line-height: 1.8;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    }
+
+    /* =============== 第二部分：剧本杀活动（左右布局） =============== */
+    .script-section {
+      background: #fff;
+      padding: 50px 30px;
+      margin: 60px 0;
+      border-radius: 15px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e0e0e0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .script-title {
+      text-align: center;
+      color: #c00;
+      font-size: 28px;
+      margin-bottom: 40px;
+      font-weight: bold;
+      position: relative;
+      display: inline-block;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0 20px;
+    }
+    
+    .script-content {
+      display: flex;
+      gap: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+      align-items: center;
+    }
+    
+    /* 修改现有的 .script-image-container 样式 */
+    .script-image-container {
+      flex: 1;
+      position: relative;
+      height: 500px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      border: 2px solid #fff;
+      /* 添加以下样式确保图片显示完整 */
+      width: 100%;
+      min-width: 300px; /* 最小宽度 */
+      max-width: 700px; /* 最大宽度 */
+      margin: 0 auto; /* 居中显示 */
+    }
+    
+    .script-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+    
+    .script-image:hover {
+      transform: scale(1.05);
+    }
+    
+    .script-thumbnails {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .script-thumb {
+      width: 90px;
+      height: 70px;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid transparent;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .script-thumb:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(192, 0, 0, 0.2);
+    }
+    
+    .script-thumb.active {
+      border-color: #c00;
+      box-shadow: 0 0 0 3px rgba(192, 0, 0, 0.3);
+    }
+    
+    .script-info {
+      flex: 1;
+      padding: 30px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e0e0e0;
+    }
+    
+    .script-info h3 {
+      color: #c00;
+      font-size: 24px;
+      margin-bottom: 20px;
+      font-weight: bold;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 10px;
+    }
+    
+    .script-info p {
+      font-size: 16px;
+      line-height: 1.8;
+      color: #555;
+    }
+
+    /* =============== 第三部分：党课照片（网格） =============== */
+    .party-lesson-section {
+      background: #fff;
+      padding: 50px 30px;
+      margin: 60px 0;
+      border-radius: 15px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e0e0e0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .party-lesson-title {
+      text-align: center;
+      color: #c00;
+      font-size: 28px;
+      margin-bottom: 40px;
+      font-weight: bold;
+    }
+    
+    .party-lesson-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .party-lesson-item {
+      text-align: center;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      border: 1px solid #e0e0e0;
+    }
+    
+    .party-lesson-item:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(192, 0, 0, 0.15);
+      border-color: #c00;
+    }
+    
+    .party-lesson-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+      border-bottom: 3px solid #f0f0f0;
+    }
+    
+    .party-lesson-caption {
+      font-size: 17px;
+      font-weight: bold;
+      color: #333;
+      padding: 20px;
+      background: #f8f9fa;
+    }
+
+   /* =============== 美化后的活跃度排名 =============== */
+   .ranking-section {
+     display: grid;
+     grid-template-columns: 1fr 1fr;
+     gap: 30px;
+     margin-bottom: 50px;
+     margin-top: 40px;
+   }
+   
+   .ranking-card {
+     background: linear-gradient(145deg, #ffffff, #f8f9fa);
+     border-radius: 16px;
+     padding: 30px;
+     box-shadow: 0 8px 30px rgba(192, 0, 0, 0.08);
+     border: 1px solid rgba(192, 0, 0, 0.1);
+     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+     position: relative;
+     overflow: hidden;
+   }
+   
+   .ranking-card:hover {
+     transform: translateY(-8px);
+     box-shadow: 0 15px 35px rgba(192, 0, 0, 0.15);
+     border-color: rgba(192, 0, 0, 0.2);
+   }
+   
+   .ranking-card::before {
+     content: "";
+     position: absolute;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 4px;
+     background: linear-gradient(to right, #c00, #ff6b6b, #c00);
+   }
+   
+   .ranking-card .card-title {
+     color: #c00;
+     font-size: 22px;
+     margin-bottom: 30px;
+     padding-bottom: 15px;
+     border-bottom: 2px solid rgba(192, 0, 0, 0.1);
+     font-weight: bold;
+     text-align: center;
+     position: relative;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 10px;
+   }
+   
+   .ranking-card .card-title::before {
+     content: "🏆";
+     font-size: 24px;
+   }
+   
+   .ranking-card .card-title::after {
+     content: "";
+     position: absolute;
+     bottom: -2px;
+     left: 50%;
+     transform: translateX(-50%);
+     width: 80px;
+     height: 3px;
+     background: linear-gradient(to right, transparent, #c00, transparent);
+     border-radius: 3px;
+   }
+   
+   .ranking-list {
+     list-style: none;
+     counter-reset: ranking-counter;
+     padding: 0;
+     margin: 0;
+   }
+   
+   .ranking-list li {
+     padding: 18px 15px;
+     border-bottom: 1px dashed rgba(192, 0, 0, 0.15);
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     font-size: 16px;
+     transition: all 0.3s ease;
+     background: rgba(255, 255, 255, 0.7);
+     border-radius: 8px;
+     margin-bottom: 10px;
+     position: relative;
+   }
+   
+   .ranking-list li:hover {
+     background: linear-gradient(90deg, rgba(192, 0, 0, 0.05) 0%, rgba(255, 255, 255, 0.9) 100%);
+     transform: translateX(5px);
+     box-shadow: 0 4px 12px rgba(192, 0, 0, 0.1);
+   }
+   
+   .ranking-list li:last-child {
+     border-bottom: none;
+     margin-bottom: 0;
+   }
+   
+   /* 美化排名徽章 */
+   .rank-badge {
+     display: inline-flex;
+     width: 32px;
+     height: 32px;
+     background: linear-gradient(145deg, #c00, #ff3333);
+     color: white;
+     border-radius: 50%;
+     align-items: center;
+     justify-content: center;
+     font-weight: bold;
+     margin-right: 15px;
+     font-size: 14px;
+     box-shadow: 0 4px 8px rgba(192, 0, 0, 0.3);
+     position: relative;
+     border: 2px solid white;
+     z-index: 1;
+   }
+   
+   /* 不同名次的不同颜色 */
+   .ranking-list li:nth-child(1) .rank-badge { /* 第一名 */
+     background: linear-gradient(145deg, #ffd700, #ffed4e);
+     box-shadow: 0 4px 10px rgba(255, 215, 0, 0.4);
+     color: #333;
+   }
+   
+   .ranking-list li:nth-child(2) .rank-badge { /* 第二名 */
+     background: linear-gradient(145deg, #c0c0c0, #e0e0e0);
+     box-shadow: 0 4px 10px rgba(192, 192, 192, 0.4);
+     color: #333;
+   }
+   
+   .ranking-list li:nth-child(3) .rank-badge { /* 第三名 */
+     background: linear-gradient(145deg, #cd7f32, #e39b57);
+     box-shadow: 0 4px 10px rgba(205, 127, 50, 0.4);
+     color: #fff;
+   }
+   
+   .ranking-list li span:first-child {
+     display: flex;
+     align-items: center;
+     color: #333;
+     font-weight: 600;
+     font-size: 16px;
+   }
+   
+   /* 美化次数显示 */
+   .ranking-list li span:last-child {
+     background: linear-gradient(145deg, #c00, #ff6b6b);
+     color: white;
+     padding: 6px 15px;
+     border-radius: 20px;
+     font-weight: bold;
+     font-size: 14px;
+     box-shadow: 0 3px 6px rgba(192, 0, 0, 0.2);
+     position: relative;
+     min-width: 70px;
+     text-align: center;
+   }
+   
+   .ranking-list li span:last-child::before {
+     content: "🎯";
+     margin-right: 5px;
+   }
+   
+   /* 并列名次的特殊样式 */
+   .ranking-list li .tie-rank {
+     background: linear-gradient(145deg, #6c757d, #adb5bd);
+   }
+   
+   /* 添加数据更新提示 */
+   .data-update {
+     position: absolute;
+     top: 10px;
+     right: 10px;
+     background: rgba(192, 0, 0, 0.1);
+     color: #c00;
+     font-size: 12px;
+     padding: 3px 8px;
+     border-radius: 12px;
+     font-weight: 500;
+   }
+   
+   /* =============== 活跃度排名大标题 =============== */
+   .ranking-header {
+     text-align: center;
+     margin: 40px 0 30px;
+     position: relative;
+     padding: 30px 0;
+   }
+   
+   .ranking-header::before {
+     content: "";
+     position: absolute;
+     top: 0;
+     left: 50%;
+     transform: translateX(-50%);
+     width: 120px;
+     height: 4px;
+     background: linear-gradient(to right, #c00, #ff6b6b, #c00);
+     border-radius: 2px;
+   }
+   
+   .ranking-header h2 {
+     font-size: 38px;
+     color: #c00;
+     margin-bottom: 15px;
+     font-weight: bold;
+     letter-spacing: 2px;
+     text-shadow: 2px 2px 4px rgba(192, 0, 0, 0.1);
+     position: relative;
+     display: inline-block;
+   }
+   
+   .ranking-header h2::after {
+     content: "🏆";
+     position: relative;
+     margin-left: 15px;
+     font-size: 34px;
+     animation: bounce 2s infinite;
+   }
+   
+   @keyframes bounce {
+     0%, 100% { transform: translateY(0); }
+     50% { transform: translateY(-8px); }
+   }
+   
+   .ranking-subtitle {
+     font-size: 18px;
+     color: #666;
+     max-width: 700px;
+     margin: 0 auto;
+     line-height: 1.6;
+     background: rgba(192, 0, 0, 0.05);
+     padding: 18px 35px;
+     border-radius: 30px;
+     border: 1px solid rgba(192, 0, 0, 0.1);
+   }
+   
+   /* 响应式设计 */
+   @media (max-width: 1024px) {
+     .main-content { 
+       grid-template-columns: 1fr 1fr; 
+     }
+     
+     .ranking-section { 
+       grid-template-columns: 1fr; 
+       gap: 20px;
+     }
+     
+     .script-content { 
+       flex-direction: column; 
+     }
+     
+     .script-image-container { 
+       height: 400px; 
+       width: 100%;
+     }
+     
+     .party-lesson-grid { 
+       grid-template-columns: repeat(2, 1fr); 
+     }
+     
+     .ranking-card {
+       padding: 25px;
+     }
+   }
+   
+   @media (max-width: 768px) {
+     .main-content { 
+       grid-template-columns: 1fr; 
+     }
+     
+     .metrics { 
+       grid-template-columns: 1fr; 
+     }
+     
+     .parallax-text h2 { 
+       font-size: 2.2rem; 
+     }
+     
+     .parallax-text p { 
+       font-size: 1.2rem; 
+     }
+     
+     .party-lesson-grid { 
+       grid-template-columns: 1fr; 
+     }
+     
+     .progress-line {
+       flex-direction: column;
+       gap: 30px;
+     }
+     
+     .progress-line::before {
+       display: none;
+     }
+     
+     .step {
+       border-left: 3px solid #e0e0e0;
+       padding-left: 20px;
+     }
+     
+     .step-circle {
+       margin-left: -15px;
+     }
+     
+     /* 活跃度排名响应式调整 */
+     .ranking-list li {
+       padding: 15px 12px;
+       font-size: 15px;
+     }
+     
+     .rank-badge {
+       width: 28px;
+       height: 28px;
+       font-size: 12px;
+     }
+     
+     .ranking-card .card-title {
+       font-size: 20px;
+     }
+     
+     .ranking-header h2 {
+       font-size: 28px;
+     }
+     
+     .ranking-header h2::after {
+       font-size: 26px;
+     }
+     
+     .ranking-subtitle {
+       font-size: 16px;
+       padding: 15px 20px;
+       max-width: 90%;
+     }
+   }
+  
+  </style>
+</head>
+<body>
+
+  <!-- 头部 -->
+  <div class="header">
+    <h1 style="text-align: center;">人工智能学院智慧党建</h1>
+    <p>2025 年人工智能学院党员发展与党建活动可视化平台<br>
+      深耕红色实践，凝聚 AI 青春力量；笃行初心致远，赓续时代使命担当。</p>
+  </div>
+
+  <!-- 核心指标 -->
+  <div class="metrics">
+    <div class="metric-card">
+      <div class="metric-icon">👥</div>
+      <div class="metric-value">419</div>
+      <div class="metric-label">入党申请人</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon">🌟</div>
+      <div class="metric-value">173</div>
+      <div class="metric-label">积极分子</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon">📊</div>
+      <div class="metric-value">37.9%</div>
+      <div class="metric-label">申请比率</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon">🎯</div>
+      <div class="metric-value">32</div>
+      <div class="metric-label">活动总数</div>
+    </div>
+  </div>
+
+  <!-- 主体内容 - 修改为2列布局 -->
+  <div class="main-content">
+    <!-- 第一列：党员能力素质雷达图 -->
+    <div class="card">
+      <div class="card-title">党员能力素质雷达图</div>
+      <div class="chart-container" id="radarChartContainer">
+        <div id="radarChart" style="width: 100%; height: 420px;"></div>
+      </div>
+    </div>
+
+    <!-- 第二列：发展流程进度 -->
+    <div class="card">
+      <div class="card-title">发展流程进度</div>
+      <div class="progress-line">
+        <div class="step">
+          <div class="step-circle">1</div>
+          <div class="step-label">入党申请人</div>
+          <div class="step-value">419人</div>
+        </div>
+        <div class="step">
+          <div class="step-circle">2</div>
+          <div class="step-label">积极分子</div>
+          <div class="step-value">173人</div>
+        </div>
+        <div class="step">
+          <div class="step-circle">3</div>
+          <div class="step-label">预备党员</div>
+          <div class="step-value">20人</div>
+        </div>
+        <div class="step">
+          <div class="step-circle">4</div>
+          <div class="step-label">正式党员</div>
+          <div class="step-value">14人</div>
+        </div>
+      </div>
+      <!-- 添加活动类型分布 -->
+      <div class="card-title" style="margin-top: 30px;">活动类型分布</div>
+      <div class="activity-distribution">
+        <div class="activity-item">
+          <div class="activity-name">主题党日活动</div>
+          <div class="activity-count">8次</div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-name">红色剧本杀</div>
+          <div class="activity-count">6次</div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-name">主题党课</div>
+          <div class="activity-count">17次</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 第三列：近期活动与学习 -->
+    <div class="card" style="grid-column: span 2;">
+      <div class="card-title" style="text-align: center;">近期活动与学习</div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>活动名称</th>
+              <th>时间</th>
+              <th>类型</th>
+            </tr>
+          </thead>
+          <tbody>
+			  <tr>
+			    <td><span class="highlight">学习二十届四中全会精神</span>专题研讨会</td>
+			    <td>2025年12月24日</td>
+			    <td><span class="highlight">专题学习</span></td>
+			  </tr>
+			<tr>
+			  <td><span class="highlight">传承抗战精神力量</span>，<span class="highlight">践行AI青年担当</span></td>
+			  <td>2025年12月18日</td>
+			  <td><span class="highlight">党日活动</span></td>
+			</tr>
+			<tr>
+			  <td><span class="highlight">孤城谍影铸忠魂，赤心永续赴征程</span></td>
+			  <td>2025年12月5日</td>
+			  <td><span class="highlight">红色剧本杀</span>主题教育活动</td>
+			</tr>
+			<tr>
+			  <td><span class="highlight">星火燎原照初心，薪火相传践使命</span></td>
+			  <td>2025年11月29日</td>
+			  <td><span class="highlight">红色剧本杀</span>主题教育活动</td>
+			</tr>
+			<tr>
+			  <td><span class="highlight">感悟时代脉搏，激发创新担当</span></td>
+			  <td>2025年11月19日</td>
+			  <td><span class="highlight">党日活动</span></td>
+			</tr>
+            <tr>
+              <td><span class="highlight">赓续红色血脉，筑牢信仰之基</span></td>
+              <td>2025年10月22日</td>
+              <td><span class="highlight">红色剧本杀</span>主题教育活动</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+   </div>
+  <!-- =============== 第一部分：重要活动（6张） =============== -->
+  <div class="parallax-container">
+    <section class="parallax-section" style="background-image: url('./img/1.jpg');">
+      <div class="parallax-text">
+        <h2>二十届四中全会精神学习</h2>
+        <p>深入学习贯彻全会精神，坚定理想信念，勇担时代使命。</p>
+      </div>
+    </section>
+    <section class="parallax-section" style="background-image: url('./img/2.jpg');">
+      <div class="parallax-text">
+        <h2>红色观影《南京照相馆》</h2>
+        <p>铭记历史，致敬英雄，厚植爱国主义情怀。</p>
+      </div>
+    </section>
+    <section class="parallax-section" style="background-image: url('./img/3.jpg');">
+      <div class="parallax-text">
+        <h2>雄安新区实践调研</h2>
+        <p>走进国家战略新区，感受高质量发展脉搏。</p>
+      </div>
+    </section>
+    <section class="parallax-section" style="background-image: url('./img/4.jpg');">
+      <div class="parallax-text">
+        <h2>AI 启童心・智创未来</h2>
+        <p>走进保定小学，在孩子们心中播下科技强国种子。</p>
+      </div>
+    </section>
+    <section class="parallax-section" style="background-image: url('./img/5.jpg');">
+      <div class="parallax-text">
+        <h2>AI赋能就业分享会</h2>
+        <p>党员先锋引领，助力同学高质量就业。</p>
+      </div>
+    </section>
+    <section class="parallax-section" style="background-image: url('./img/6.jpg');">
+      <div class="parallax-text">
+        <h2>新队员入队宣誓仪式</h2>
+        <p>庄严宣誓，不忘初心，牢记使命。</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- =============== 第二部分：剧本杀活动（6张） =============== -->
+  <div class="script-section">
+    <h2 class="script-title">红色剧本杀 · 沉浸式主题教育</h2>
+    <div class="script-content">
+      <div>
+        <div class="script-image-container">
+          <img id="mainScriptImg" class="script-image" src="./img/7.jpg" alt="剧本杀活动">
+        </div>
+        <div class="script-thumbnails">
+          <!-- 缩略图由 JS 生成 -->
+        </div>
+      </div>
+      <div class="script-info">
+        <h3 id="scriptTitle">星火燎原照初心<p></p>薪火相传践使命</h3>
+        <p id="scriptDesc">我院学生党支部开展红色主题沉浸式剧本杀活动，以红色剧本《星火》为依托，带领青年党员穿越至革命年代的隐蔽战线，在角色扮演中触摸信仰温度，在剧情推演中感悟使命担当，让党史学习从 “被动聆听” 变为 “主动参与”。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============== 第三部分：党课照片 =============== -->
+  <div class="party-lesson-section">
+    <h2 class="party-lesson-title">党课学习掠影</h2>
+    <div class="party-lesson-grid" id="partyLessonGrid">
+      <!-- 由 JS 动态生成 -->
+    </div>
+  </div>
+
+  <!-- =============== 党员先锋榜-活跃度排名 =============== -->
+  <section class="party-ranking">
+    <!-- 头部标题区域 -->
+    <div class="ranking-header">
+      <h2 class="header-title">党员先锋榜</h2>
+      <p class="header-desc">
+        榜样引领前行，奋斗彰显担当。展示先进风采，激发奋进力量。
+      </p>
+    </div>
+  
+    <!-- 排名内容区域（双卡片布局） -->
+    <div class="ranking-section">
+      <!-- 个人活跃度排名卡片 -->
+      <div class="ranking-card">
+        <div class="card-header">
+          <h3 class="card-title">个人活跃度排行榜</h3>
+          <span class="rank-update">2025-2026第一学期</span>
+        </div>
+        <ul class="ranking-list">
+          <li class="list-item">
+            <div class="item-left">
+              <span class="rank-badge">1</span>
+              <span class="rank-name">蔡铭烨</span>
+            </div>
+            <span class="rank-count">6次</span>
+          </li>
+          <li class="list-item">
+            <div class="item-left">
+              <span class="rank-badge">2</span>
+              <span class="rank-name">马欣雨</span>
+            </div>
+            <span class="rank-count">5次</span>
+          </li>
+          <li class="list-item">
+            <div class="item-left">
+              <span class="rank-badge">2</span>
+              <span class="rank-name">张若涵</span>
+            </div>
+            <span class="rank-count">5次</span>
+          </li>
+          <li class="list-item">
+            <div class="item-left">
+              <span class="rank-badge">2</span>
+              <span class="rank-name tie-rank">齐艺哲</span> <!-- tie-rank：并列排名标识 -->
+            </div>
+            <span class="rank-count">5次</span>
+          </li>
+        </ul>
+      </div>
+  
+      <!-- 班级活跃度排名卡片 -->
+      <div class="ranking-card">
+        <div class="card-header">
+          <h3 class="card-title">班级活跃度排行榜</h3>
+          <span class="rank-update">2025-2026第一学期</span>
+        </div>
+        <ul class="ranking-list">
+          <li class="list-item">
+            <div class="item-left">
+              <span class="rank-badge">1</span>
+              <span class="rank-name">2023人工智能2班</span>
+            </div>
+            <span class="rank-count">16次</span>
+          </li>
+          <li class="list-item">
+            <div class="item-left">
+              <span class="rank-badge">2</span>
+              <span class="rank-name">2023人工智能1班</span>
+            </div>
+            <span class="rank-count">11次</span>
+          </li>
+          <li class="list-item">
+            <div class="item-left">
+              <span class="rank-badge">3</span>
+              <span class="rank-name">2023大数据1班</span>
+            </div>
+            <span class="rank-count">10次</span>
+          </li>
+          <li class="list-item">
+            <div class="item-left">
+              <span class="rank-badge">3</span>
+              <span class="rank-name tie-rank">2023大数据2班</span> <!-- tie-rank：并列排名标识 -->
+            </div>
+            <span class="rank-count">10次</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // 检查ECharts是否加载成功
+    function checkEChartsLoaded() {
+      if (typeof echarts === 'undefined') {
+        // ECharts加载失败，显示错误提示
+        const radarContainer = document.getElementById('radarChartContainer');
+        radarContainer.innerHTML = `
+          <div class="chart-error">
+            <div>📊</div>
+            <p><strong>图表加载失败</strong></p>
+            <p>ECharts库未能成功加载，可能是网络问题。</p>
+            <p>请检查网络连接后刷新页面，或联系管理员。</p>
+            <a href="javascript:location.reload()">点击刷新页面</a>
+          </div>
+        `;
+        console.error('ECharts库加载失败，请检查网络连接或CDN可用性');
+        return false;
+      }
+      return true;
+    }
+
+    // 页面加载完成后初始化图表
+    document.addEventListener('DOMContentLoaded', function() {
+      // 首先检查ECharts是否加载成功
+      if (!checkEChartsLoaded()) {
+        return; // 如果ECharts未加载，停止执行图表相关代码
+      }
+      
+      // 1. 初始化党员能力素质雷达图 (ECharts)
+      const radarChart = echarts.init(document.getElementById('radarChart'));
+      const radarOption = {
+        tooltip: {
+          trigger: 'item',
+          formatter: '{b}: {c}分'
+        },
+        radar: {
+          indicator: [
+            { name: '政治理论水平', max: 100 },
+            { name: '组织纪律性', max: 100 },
+            { name: '先锋模范作用', max: 100 },
+            { name: '服务群众能力', max: 100 },
+            { name: '创新能力', max: 100 },
+            { name: '责任担当', max: 100 }
+          ],
+          center: ['50%', '50%'],
+          radius: '70%',
+          axisLine: { 
+            lineStyle: { 
+              color: '#ccc',
+              width: 1
+            } 
+          },
+          splitLine: { 
+            lineStyle: { 
+              color: '#eee',
+              width: 1
+            } 
+          },
+          splitArea: {
+            areaStyle: {
+              color: ['rgba(192, 0, 0, 0.05)', 'rgba(192, 0, 0, 0.02)']
+            }
+          },
+          name: { 
+            textStyle: { 
+              fontSize: 12, 
+              color: '#666',
+              fontWeight: 'bold'
+            } 
+          }
+        },
+        series: [
+          {
+            type: 'radar',
+            lineStyle: { 
+              width: 3,
+              type: 'solid'
+            },
+            areaStyle: { 
+              opacity: 0.4
+            },
+            symbolSize: 8,
+            symbol: 'circle',
+            itemStyle: {
+              borderWidth: 2,
+              borderColor: '#fff'
+            },
+            data: [
+              { 
+                value: [92, 88, 85, 90, 82, 87], 
+                name: '正式党员',
+                itemStyle: { color: '#c00' },
+                areaStyle: { color: 'rgba(192, 0, 0, 0.3)' }
+              },
+              { 
+                value: [78, 82, 75, 80, 76, 79], 
+                name: '预备党员',
+                itemStyle: { color: '#ff6b6b' },
+                areaStyle: { color: 'rgba(255, 107, 107, 0.3)' }
+              },
+              { 
+                value: [65, 72, 68, 70, 65, 69], 
+                name: '积极分子',
+                itemStyle: { color: '#ff9800' },
+                areaStyle: { color: 'rgba(255, 152, 0, 0.3)' }
+              },
+              { 
+                value: [55, 60, 58, 62, 59, 61], 
+                name: '入党申请人',
+                itemStyle: { color: '#4caf50' },
+                areaStyle: { color: 'rgba(76, 175, 80, 0.3)' }
+              }
+            ]
+          }
+        ],
+        legend: {
+          bottom: 10,
+          data: ['正式党员', '预备党员', '积极分子', '入党申请人'],
+          textStyle: {
+            fontSize: 12
+          }
+        }
+      };
+      radarChart.setOption(radarOption);
+      
+      // 窗口大小自适应
+      window.addEventListener('resize', () => {
+        if (radarChart && !radarChart.isDisposed()) {
+          radarChart.resize();
+        }
+      });
+
+     // 3. 剧本杀活动交互
+     const scriptData = [
+       { img: './img/7.jpg', title: '星火燎原照初心\n薪火相传践使命', desc: '我院学生党支部开展红色主题沉浸式剧本杀活动，以红色剧本《星火》为依托，带领青年党员穿越至革命年代的隐蔽战线，在角色扮演中触摸信仰温度，在剧情推演中感悟使命担当，让党史学习从 “被动聆听” 变为 “主动参与”。' },
+       { img: './img/8.jpg', title: '孤城谍影铸忠魂\n赤心永续赴征程', desc: '我院学生党支部以经典红色剧本《孤城》为载体，举办沉浸式党史学习教育活动。党员们化身抗战时期孤城之中的各方志士，在波谲云诡的谍战迷局中交锋周旋，在信仰与利益的抉择中坚守立场，让党史学习从“单向灌输”变为“双向互动”，在角色扮演中传承红色基因，凝聚奋进力量。' },
+       { img: './img/9.jpg', title: '赓续红色血脉\n筑牢信仰之基', desc: '我院学生党支部创新开展红色主题教育活动——以经典红色剧本《兵临城下》为依托的沉浸式剧本杀体验。本次活动以剧情演绎为纽带，以历史场景为背景，引导青年党员化身时代亲历者，在沉浸式互动中回望烽火岁月，体悟革命先辈的家国担当与使命初心。' },
+       { img: './img/10.jpg', title: '重温红色岁月\n砥砺青春担当', desc: '人工智能学院学生党支部于Ja-114教室开展红色“剧本杀”主题教育活动。在这场别开生面的沉浸式体验中，同学们穿越时空，化身为革命志士，于往昔烽火岁月里，续写动人的英雄篇章。' },
+       { img: './img/11.jpg', title: '孤城之下见初心\n红心向党践于行', desc: '人工智能学院学生党支部精心策划了一场红色主题教育活动——以热门红色剧本《孤城》为核心的沉浸式剧本杀体验。本次活动通过角色扮演、剧情解谜与历史对话，带领青年党员穿越时空，感悟革命年代的热血与信仰。' },
+       { img: './img/12.jpg', title: '穿越时空，点燃热血！', desc: '人工智能学院学生党支部在学生社区开展了一场红色“剧本杀”主题教育活动。在这场跨越时空的红色之旅中，同学们化身革命志士，在战火纷飞的年代书写了一段感人至深的英雄故事。' }
+     ];
+
+      const thumbnailsContainer = document.querySelector('.script-thumbnails');
+      const mainImg = document.getElementById('mainScriptImg');
+      const titleEl = document.getElementById('scriptTitle');
+      const descEl = document.getElementById('scriptDesc');
+
+      if (thumbnailsContainer && mainImg && titleEl && descEl) {
+        scriptData.forEach((item, index) => {
+          const thumb = document.createElement('img');
+          thumb.src = item.img;
+          thumb.className = 'script-thumb';
+          thumb.alt = item.title;
+          if (index === 0) thumb.classList.add('active');
+          thumb.onclick = () => {
+            document.querySelectorAll('.script-thumb').forEach(t => t.classList.remove('active'));
+            thumb.classList.add('active');
+            mainImg.src = item.img;
+            titleEl.textContent = item.title;
+            descEl.textContent = item.desc;
+            // 添加高亮关键词
+            descEl.innerHTML = descEl.innerHTML.replace(/AI学子|信仰的力量|忠诚|牺牲|革命真理|新时代长征路|坚定信念|党史教育/g, 
+              '<span class="highlight">$&</span>');
+          };
+          thumbnailsContainer.appendChild(thumb);
+        });
+      }
+
+      // 3. 党课照片网格（假设从13.jpg开始，共8张）
+      const partyLessonGrid = document.getElementById('partyLessonGrid');
+      const lessonCaptions = [
+        '强渡大渡河，飞夺泸定桥',
+        '缅怀革命先烈,传承红色基因',
+        '弘扬五四精神，牢记青春使命',
+        '国家安全，你我同行',
+        '学习贯彻两会精神，助力学生发展规划',
+        '以青春之我，创造青春之中国',
+      ];
+
+      if (partyLessonGrid) {
+        for (let i = 0; i < lessonCaptions.length; i++) {
+          const item = document.createElement('div');
+          item.className = 'party-lesson-item';
+          
+          const caption = lessonCaptions[i];
+          const highlightedCaption = caption
+            .replace(/强渡大渡河|飞夺泸定桥|革命先烈|红色基因|五四精神|国家安全|两会精神|青春之我|青春之中国|强军有我|爱我国防/g, 
+              '<span class="highlight">$&</span>');
+          
+          item.innerHTML = `
+           <img class="party-lesson-img" src="./img/${13 + i}.jpg" alt="${caption}" loading="lazy" onerror="this.src='data:image/svg+xml;utf8,&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;300&quot; height=&quot;220&quot; viewBox=&quot;0 0 300 220&quot;&gt;&lt;rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#f0f0f0&quot;/&gt;&lt;text x=&quot;50%&quot; y=&quot;50%&quot; text-anchor=&quot;middle&quot; dy=&quot;.3em&quot; font-family=&quot;sans-serif&quot; font-size=&quot;16&quot; fill=&quot;#666&quot;&gt;党课图片&lt;/text&gt;&lt;/svg&gt;'">
+            <div class="party-lesson-caption">${highlightedCaption}</div>
+          `;
+          partyLessonGrid.appendChild(item);
+        }
+      }
+    });
+
+    // 如果ECharts库在稍后加载完成，重新检查并初始化
+    window.addEventListener('load', function() {
+      if (typeof echarts !== 'undefined' && !document.querySelector('.chart-error')) {
+        // 重新初始化雷达图
+        const radarChart = echarts.init(document.getElementById('radarChart'));
+        if (radarChart) {
+          const radarOption = {
+            tooltip: { trigger: 'item', formatter: '{b}: {c}分' },
+            radar: {
+              indicator: [
+                { name: '政治理论水平', max: 100 },
+                { name: '组织纪律性', max: 100 },
+                { name: '先锋模范作用', max: 100 },
+                { name: '服务群众能力', max: 100 },
+                { name: '创新能力', max: 100 },
+                { name: '责任担当', max: 100 }
+              ],
+              center: ['50%', '50%'],
+              radius: '70%',
+              axisLine: { lineStyle: { color: '#ccc', width: 1 } },
+              splitLine: { lineStyle: { color: '#eee', width: 1 } },
+              splitArea: { areaStyle: { color: ['rgba(192, 0, 0, 0.05)', 'rgba(192, 0, 0, 0.02)'] } },
+              name: { textStyle: { fontSize: 12, color: '#666', fontWeight: 'bold' } }
+            },
+            series: [{
+              type: 'radar',
+              lineStyle: { width: 3, type: 'solid' },
+              areaStyle: { opacity: 0.4 },
+              symbolSize: 8,
+              symbol: 'circle',
+              itemStyle: { borderWidth: 2, borderColor: '#fff' },
+              data: [
+                { value: [92, 88, 85, 90, 82, 87], name: '正式党员', itemStyle: { color: '#c00' }, areaStyle: { color: 'rgba(192, 0, 0, 0.3)' } },
+                { value: [78, 82, 75, 80, 76, 79], name: '预备党员', itemStyle: { color: '#ff6b6b' }, areaStyle: { color: 'rgba(255, 107, 107, 0.3)' } },
+                { value: [65, 72, 68, 70, 65, 69], name: '积极分子', itemStyle: { color: '#ff9800' }, areaStyle: { color: 'rgba(255, 152, 0, 0.3)' } },
+                { value: [55, 60, 58, 62, 59, 61], name: '入党申请人', itemStyle: { color: '#4caf50' }, areaStyle: { color: 'rgba(76, 175, 80, 0.3)' } }
+              ]
+            }],
+            
+          };
+          radarChart.setOption(radarOption);
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>
